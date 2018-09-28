@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    用户名：<input type="text" id="user"><br>
+    密码：<input type="password" id="password"><br>
+    <input type="button" value="get" id="get_btn">
+    <input type="button" value="post" id="post_btn">
+</body>
+<script>
+    get_btn.onclick = function(){
+        Ajax({
+            method: 'get',
+            data: {
+                user: user.value,
+                password: password.value
+            },
+            url: 'http://localhost:9270',
+            success:function(data){
+                alert(data)
+            },
+            error:function(){
+                alert('error');
+            }
+        })
+    }
+    post_btn.onclick = function(){
+        Ajax({
+            method: 'post',
+            url: 'http://localhost:8260',
+            data: {
+                user: user.value,
+                password: password.value
+            },
+            success:function(data){
+                alert(data);
+            },
+            error:function(){
+                console.log('error')
+            }
+        })
+    }
+    function Ajax(json){
+        var xhr = null;
+        if(window.XMLHttpRequest){
+            xhr = new XMLHttpRequest(); 
+        } else {
+            xhr = new ActiveXObject('Microsoft.XMLHttp');
+        }
+        if(json.method == 'get'){
+            xhr.open(json.method, json.url + '?' + jsonToString(json.data), true);
+            xhr.send();
+        } else if(json.method == 'post'){
+            xhr.open(json.method, json.url, true);
+            xhr.setRequestHeader('Content-Type',"application/x-www-form-urlencoded");
+            xhr.send(jsonToString(json.data));
+        }
+        
+        xhr.onreadystatechange = function(){
+            if(xhr.readyState == 4){
+                if(xhr.status == 200 || xhr.status == 304){
+                    json.success(xhr.responseText);
+                } else {
+                    json.error && json.error();
+                }
+            } 
+        }
+    }
+    function jsonToString(json){
+        var arr = [];
+        for(var i in json){
+            arr.push(i + '=' + json[i]);
+        }
+        return arr.join('&');
+    }
+</script>
+</html>
